@@ -38,9 +38,13 @@ const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 // rejected entry: UTF-8 text, 1–140 characters, not whitespace-only,
 // exactly one line (no newline at all), no leading/trailing whitespace
 // that would pad the judged text. The line is 115 characters.
+// Also cap the byte length at 140: the gate counts characters, but the
+// leaderboard's tie-break counts bytes, so a shorter byte count is
+// strictly better and a byte overrun must fail loudly here.
 if (
   LINE.length < 1 ||
   LINE.length > 140 ||
+  Buffer.byteLength(LINE, 'utf8') > 140 ||
   LINE.trim() === '' ||
   LINE !== LINE.trim() ||
   /[\r\n]/.test(LINE)
